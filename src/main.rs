@@ -6,9 +6,11 @@ fn main() {
         .expect("failed to get path")
         .to_path_buf();
     println!("{}",dir.display());
+    
 
-    let icon = dir.join("lowBattery.jpg");
-    let sound = dir.join("Google-notification.mp3");
+    // configuration of What your file this is an example
+    let icon = dir.join("Your icon image example.jpg"); 
+    let sound = dir.join("example notication sound.mp3");
 
     // Temporary
     //let status_path = dir.join("status");
@@ -19,6 +21,7 @@ fn main() {
     let mut notified_full = false; 
 
     loop {
+        // Change here if your battery are different ID. 
         let status = fs::read_to_string("/sys/class/power_supply/BAT1/status")
             .unwrap_or_default()
             .trim()
