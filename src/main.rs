@@ -12,7 +12,7 @@ fn main() {
     let icon = dir.join("Your icon image example.jpg"); 
     let sound = dir.join("example notication sound.mp3");
 
-    // Temporary
+    // Temporary for testing 
     //let status_path = dir.join("status");
     //let capacity_path = dir.join("capacity"); 
 
@@ -32,10 +32,11 @@ fn main() {
             .parse()
             .unwrap_or(0);
 
+        // This is where you can adjust your battery value 
         match (status.as_str(), capacity) {
             ("Discharging", 10..=20) => {
                 if !notified_low {
-                    notify("~Oni-Chan!", &format!("Your battery is low at {}", capacity), &icon, &sound);
+                    notify("User!", &format!("Your battery is low at {}", capacity), &icon, &sound);
                     notified_low = true;
                     notified_critical = false;
                     notified_full = false; 
@@ -43,7 +44,7 @@ fn main() {
             }
             ("Discharging", 0..=9) => {
                 if !notified_critical {
-                    notify("~Oni-chan! I'm really hungry!", "Please feed me!",&icon, &sound);
+                    notify("User!", "Please Charge me!",&icon, &sound);
                     notified_low = false; 
                     notified_critical = true; 
                     notified_full = false; 
@@ -51,7 +52,7 @@ fn main() {
             }
             ("Discharging", 95..) => {
                 if !notified_full {
-                    notify("~Oni-chan!", "I'm filled!", &icon, &sound);
+                    notify("User!", "Discharge me!", &icon, &sound);
                     notified_low = false; 
                     notified_critical = false; 
                     notified_full = true; 
@@ -70,7 +71,7 @@ fn main() {
 }
                  
 
-
+// make sure you have this depedencies
 fn notify(summary: &str, body: &str, icon: &Path, sound: &Path) { 
     Command::new("notify-send")
         .arg(summary)
