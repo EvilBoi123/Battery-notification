@@ -1,18 +1,21 @@
 use std::{fs, thread, time::Duration, process::Command, path::Path }; 
-fn main() {
+use once_cell::sync; 
+
+static CURRENT_DIR: Lazy<PathBuf>{
     let dir = std::env::current_exe()
         .expect("Failed to get exe")
         .parent()
         .expect("failed to get path")
         .to_path_buf();
-    println!("{}",dir.display());
-    
+    }
 
-    // configuration of What your file this is an example
-    let icon = dir.join("Your icon image example.jpg"); 
-    let sound = dir.join("example notication sound.mp3");
 
-    // Temporary for testing 
+fn battery_check() {
+
+    let icon = CURRENT_DIR.join("lowBattery.jpg");
+    let sound = CURRENT_DIR.join("Google-notification.mp3");
+
+    // Temporary
     //let status_path = dir.join("status");
     //let capacity_path = dir.join("capacity"); 
 
@@ -21,7 +24,6 @@ fn main() {
     let mut notified_full = false; 
 
     loop {
-        // Change here if your battery are different ID. 
         let status = fs::read_to_string("/sys/class/power_supply/BAT1/status")
             .unwrap_or_default()
             .trim()
@@ -32,11 +34,10 @@ fn main() {
             .parse()
             .unwrap_or(0);
 
-        // This is where you can adjust your battery value 
         match (status.as_str(), capacity) {
             ("Discharging", 10..=20) => {
                 if !notified_low {
-                    notify("User!", &format!("Your battery is low at {}", capacity), &icon, &sound);
+                    notify("~Oni-Chan!", &format!("Your battery is low at {}", capacity), &icon, &sound);
                     notified_low = true;
                     notified_critical = false;
                     notified_full = false; 
@@ -44,7 +45,7 @@ fn main() {
             }
             ("Discharging", 0..=9) => {
                 if !notified_critical {
-                    notify("User!", "Please Charge me!",&icon, &sound);
+                    notify("~Oni-chan! I'm really hungry!", "Please feed me!",&icon, &sound);
                     notified_low = false; 
                     notified_critical = true; 
                     notified_full = false; 
@@ -52,7 +53,7 @@ fn main() {
             }
             ("Discharging", 95..) => {
                 if !notified_full {
-                    notify("User!", "Discharge me!", &icon, &sound);
+                    notify("~Oni-chan!", "I'm filled!", &icon, &sound);
                     notified_low = false; 
                     notified_critical = false; 
                     notified_full = true; 
@@ -71,7 +72,7 @@ fn main() {
 }
                  
 
-// make sure you have this depedencies
+
 fn notify(summary: &str, body: &str, icon: &Path, sound: &Path) { 
     Command::new("notify-send")
         .arg(summary)
