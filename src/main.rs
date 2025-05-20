@@ -1,14 +1,17 @@
-use std::{fs, thread, time::Duration, process::Command, path::Path }; 
-use once_cell::sync; 
+use std::{fs, thread, time::Duration, process::Command, path::{Path, PathBuf}}; 
+use once_cell::sync::Lazy; 
 
-static CURRENT_DIR: Lazy<PathBuf>{
-    let dir = std::env::current_exe()
+static CURRENT_DIR: Lazy<PathBuf> = Lazy::new(||{ 
+    std::env::current_exe()
         .expect("Failed to get exe")
         .parent()
         .expect("failed to get path")
-        .to_path_buf();
-    }
+        .to_path_buf()
+    });
 
+fn main(){
+    battery_check(); 
+}
 
 fn battery_check() {
 
@@ -16,19 +19,19 @@ fn battery_check() {
     let sound = CURRENT_DIR.join("Google-notification.mp3");
 
     // Temporary
-    //let status_path = dir.join("status");
-    //let capacity_path = dir.join("capacity"); 
+    let status_path = CURRENT_DIR.join("status");
+    let capacity_path = CURRENT_DIR.join("capacity"); 
 
     let mut notified_low = false; 
     let mut notified_critical = false; 
     let mut notified_full = false; 
 
     loop {
-        let status = fs::read_to_string("/sys/class/power_supply/BAT1/status")
+        let status = fs::read_to_string(&status_path)
             .unwrap_or_default()
             .trim()
             .to_string();
-        let capacity: u32 = fs::read_to_string("/sys/class/power_supply/BAT1/capacity")
+        let capacity: u32 = fs::read_to_string(&capacity_path)
             .unwrap_or_default()
             .trim()
             .parse()
